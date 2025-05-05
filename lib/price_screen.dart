@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'coin_data.dart';
+import 'package:flutter/cupertino.dart';
+import 'dart:io'
+    show Platform; // for OS / platform / device checking tools in this project
+// import 'dart:io' as Platform;
+// import 'dart:io' hide Platform;
 
 class PriceScreen extends StatefulWidget {
   const PriceScreen({super.key});
@@ -11,19 +16,60 @@ class PriceScreen extends StatefulWidget {
 class _PriceScreenState extends State<PriceScreen> {
   String selectedCurrency = 'USD';
 
-  List<DropdownMenuItem> getDropdownItem() {
+  // Function to chose the right Picker according to the user's device / phone brand (iOS or Android) :
+  Widget getPicker() {
+    if (Platform.isIOS) {
+      return iOSPicker();
+    } else if (Platform.isAndroid) {
+      return androidDropdown();
+    } else {
+      return androidDropdown();
+    }
+  } // Not working when using web : by default let's use the iOS Picker for this time.
+
+  // Function to get the Android dropdpdown button / picker style
+  DropdownButton androidDropdown() {
+    // First Part of the method : gathering the currencies from the list into the DDMI format
     List<DropdownMenuItem<String>> myDropdownItems = [];
-
-    for (int i = 0; i < currenciesList.length; i++) {
-      String currency = currenciesList[i];
-
+    // -> List<DropdownMenuItem<String>> to specify more precisely the type of the items that are inside of the menu (since they're all the same type).
+    for (String currency in currenciesList) {
       var newitem = DropdownMenuItem(
         child: Text(currency),
         value: currency,
       );
       myDropdownItems.add(newitem);
     }
-    return myDropdownItems;
+
+    // Second Part : We use our new menu item formatted list to get all currencies as options inside our dropdown menu.
+    var dDbutton = DropdownButton(
+      value: selectedCurrency,
+      items: myDropdownItems,
+      onChanged: (value) {
+        setState(() {
+          selectedCurrency = value!;
+        });
+        print(value);
+      },
+    );
+    return dDbutton;
+  }
+
+  // Function to get the iOS buttonPicker.
+  CupertinoPicker iOSPicker() {
+    // Returns a list of widgets
+    List<Widget> PickerItems = [];
+    for (String currency in currenciesList) {
+      Widget PickerItem = Text(currency);
+      PickerItems.add(PickerItem);
+    }
+
+    var thePicker = CupertinoPicker(
+        backgroundColor: Colors.lightBlue,
+        itemExtent: 32.0,
+        onSelectedItemChanged: (null),
+        children: PickerItems);
+
+    return thePicker;
   }
 
   @override
@@ -58,21 +104,11 @@ class _PriceScreenState extends State<PriceScreen> {
             ),
           ),
           Container(
-            height: 150.0,
-            alignment: Alignment.center,
-            padding: const EdgeInsets.only(bottom: 30.0),
-            color: Colors.lightBlue,
-            child: DropdownButton(
-              value: selectedCurrency,
-              items: getDropdownItem(),
-              onChanged: (value) {
-                setState(() {
-                  selectedCurrency = value!;
-                });
-                print(value);
-              },
-            ),
-          ),
+              height: 150.0,
+              alignment: Alignment.center,
+              padding: const EdgeInsets.only(bottom: 30.0),
+              color: Colors.lightBlue,
+              child: iOSPicker()),
         ],
       ),
     );
