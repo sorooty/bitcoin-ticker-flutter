@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'coin_data.dart';
+import '../models/coin_data.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:bitcoin_ticker/controllers/networking.dart';
 import 'dart:io'
     show Platform; // for OS / platform / device checking tools in this project
 // import 'dart:io' as Platform;
@@ -14,7 +15,16 @@ class PriceScreen extends StatefulWidget {
 }
 
 class _PriceScreenState extends State<PriceScreen> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    exchangeRate = Service.getExchangeRate('BTC', 'USD');
+  }
+
   String selectedCurrency = 'USD';
+  ApiService Service = ApiService();
+  late Future<Exchangerate> exchangeRate;
 
   // Function to chose the right Picker according to the user's device / phone brand (iOS or Android) :
   Widget getPicker() {
@@ -76,7 +86,12 @@ class _PriceScreenState extends State<PriceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('🤑 Coin Ticker'),
+        backgroundColor: Colors.lightBlue,
+        title: const Text(
+          '🤑 Coin Ticker',
+          style: TextStyle(
+              color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),
+        ),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -90,10 +105,10 @@ class _PriceScreenState extends State<PriceScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.0),
               ),
-              child: const Padding(
+              child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
                 child: Text(
-                  '1 BTC = ? USD',
+                  '1 BTC = $exchangeRate',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20.0,
